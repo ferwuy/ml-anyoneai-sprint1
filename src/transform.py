@@ -210,32 +210,41 @@ def query_orders_per_day_and_holidays_2017(database: Engine) -> QueryResult:
     # Reading the orders from olist_orders table
     orders = read_sql("SELECT * FROM olist_orders", database)
 
-    # Converting the order_purchase_timestamp column to datetime
+    # TODO: Converting the order_purchase_timestamp column to datetime.
+    # Replace the content for the column `order_purchase_timestamp` in the `orders`
+    # DataFrame with the same data but converted to datetime.
+    # We suggest you to read about how to use pd.to_datetime() for this.
     orders["order_purchase_timestamp"] = pd.to_datetime(orders["order_purchase_timestamp"])
 
-    # Filtering only the order purchase timestamps from the year 2017
+    # TODO: Filtering only the order purchase timestamps from the year 2017.
+    # Using the `orders` DataFrame, apply a boolean mask for retrieving all the
+    # columns but only the rows corresponding to the year 2017.
+    # Assign the result to a new variable called `filtered_dates`.
     filtered_dates = orders[orders["order_purchase_timestamp"].dt.year == 2017]
 
-    # Counting the orders per day
-    order_purchase_amount_per_date = (
-        filtered_dates["order_purchase_timestamp"].dt.date.value_counts().reset_index()
-    )
-    order_purchase_amount_per_date.columns = ["date", "order_count"]
+    # TODO: Counting the orders per day.
+    # Using the `filtered_dates` DataFrame, count how many orders were made on
+    # each day.
+    # Assign the result to the `order_purchase_ammount_per_date` variable.
+    order_purchase_amount_per_date = filtered_dates["order_purchase_timestamp"].dt.date.value_counts()
 
-    # Creating a dataframe with the result
+    # TODO: Creating a dataframe with the result. Assign it to `result_df` variable.
+    # Now we will create the final DataFrame for the output.
+    # This DataFrame must have 3 columns:
+    #   - 'order_count': with the number of orders per day, you should be able to get
+    #                    this data from `order_purchase_amount_per_date` variable.
+    #   - 'date': the corresponding date for each count of orders.
+    #   - 'holiday': boolean column having True when that date is a holiday or,
+    #                False otherwise. Use the `holidays` DataFrame for this.
     result_df = pd.DataFrame({
-        "date": order_purchase_amount_per_date["date"],
-        "order_count": order_purchase_amount_per_date["order_count"],
+        "order_count": order_purchase_amount_per_date.values,
+        "date": order_purchase_amount_per_date.index,
+        "holiday": order_purchase_amount_per_date.index.isin(holidays["date"]) 
     })
-
-    # Adding the holiday column
-    holidays["date"] = pd.to_datetime(holidays["date"]).dt.date
-    result_df["holiday"] = result_df["date"].isin(holidays["date"])
 
     # Keep the code below as it is, this will return the result from
     # `aggregations` variable with the corresponding name and format.
     return QueryResult(query=query_name, result=result_df)
-
 
 def get_all_queries() -> List[Callable[[Engine], QueryResult]]:
     """Get all queries.
