@@ -14,8 +14,8 @@ SELECT
     o.order_count,
     CAST(STRFTIME('%s', o.order_date) AS BIGINT) * 1000 AS date, -- Convert to Unix timestamp in milliseconds
     CASE 
-        WHEN h.date IS NOT NULL THEN 1
-        ELSE 0
+        WHEN h.date IS NOT NULL THEN true
+        ELSE false
     END AS holiday -- Boolean indicating if the day is a holiday
 FROM 
     orders_per_day o
