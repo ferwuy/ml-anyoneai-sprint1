@@ -242,6 +242,9 @@ def query_orders_per_day_and_holidays_2017(database: Engine) -> QueryResult:
         "holiday": order_purchase_amount_per_date.index.isin(holidays["date"]) 
     })
 
+    # Sorting the result by date
+    result_df = result_df.sort_values(by="date")
+
     # Keep the code below as it is, this will return the result from
     # `aggregations` variable with the corresponding name and format.
     return QueryResult(query=query_name, result=result_df)
